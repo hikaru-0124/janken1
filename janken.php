@@ -83,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'history' => []
         ];
         // リダイレクトしてPOSTデータをクリア
-        header('Location: janken_v2.php');
+        header('Location: janken.php');
         exit;
     }
 
@@ -192,7 +192,7 @@ $win_rate = ($total_games > 0) ? round(($_SESSION['score']['win'] / $total_games
             <p>あなたの手を決めて、コンピュータの戦略に挑んでください。</p>
         <?php endif; ?>
 
-        <form method="POST" action="janken_v2.php">
+        <form method="POST" action="janken.php">
             <?php foreach ($hands as $value => $name): ?>
                 <button type="submit" name="user_choice" value="<?php echo $value; ?>" class="hand-button 
                     <?php 
@@ -205,7 +205,7 @@ $win_rate = ($total_games > 0) ? round(($_SESSION['score']['win'] / $total_games
             <?php endforeach; ?>
         </form>
         
-        <form method="POST" action="janken_v2.php" class="reset-form">
+        <form method="POST" action="janken.php" class="reset-form">
             <button type="submit" name="reset_score" class="reset-button">スコアをリセット</button>
         </form>
         
