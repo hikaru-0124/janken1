@@ -1,32 +1,43 @@
 <?php
-// PHPはファイルの構造を提供するのみで、ゲームロジックはすべてJavaScriptで行います
+// PHPはファイルの構造を提供するのみ
 ?>
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>五目並べ</title>
+    <title>五目並べ - 修正版</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; background-color: #f4f4f9; padding-top: 20px; }
         .container { background-color: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 650px; margin: auto; }
         h1 { color: #333; margin-bottom: 20px; }
         
         /* 盤面スタイル */
-        #board-container { display: inline-block; background-color: #fce8a6; /* 碁盤の色 */ border: 1px solid #333; box-shadow: 2px 2px 5px rgba(0,0,0,0.3); }
+        #board-container { 
+            display: inline-block; 
+            background-color: #fce8a6; 
+            border: 1px solid #333; 
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+        }
         .board-row { display: flex; }
         .cell {
             width: 30px;
             height: 30px;
+            /* 線はセルの四隅に描画される交点として表現 */
             border: 1px solid #333;
             box-sizing: border-box;
             position: relative;
             cursor: pointer;
+            background-color: #fce8a6; /* セル背景色 */
         }
-        
-        /* 線の調整（セル内部に線が見えるように） */
+        /* セル間の線を消して、交点のみにする（五目並べの盤面表現） */
         .cell:not(:last-child) { border-right: none; }
         .board-row:not(:last-child) .cell { border-bottom: none; }
-
+        /* 角と端の線を調整 */
+        .cell:first-child { border-left: 1px solid #333; }
+        .cell:last-child { border-right: 1px solid #333; }
+        .board-row:first-child .cell { border-top: 1px solid #333; }
+        .board-row:last-child .cell { border-bottom: 1px solid #333; }
+        
         /* 碁石スタイル */
         .stone {
             width: 90%;
@@ -37,6 +48,7 @@
             left: 50%;
             transform: translate(-50%, -50%);
             box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            pointer-events: none; /* 石の上をクリックしても下のセルが反応するように */
         }
         .stone.black { background-color: black; }
         .stone.white { background-color: white; border: 1px solid #333; }
@@ -62,17 +74,17 @@
 <body>
     <div class="container">
         <h1>五目並べ</h1>
-        <div id="message">黒のターンです (⚫)</div>
+        <div id="message"></div>
         <div id="board-container">
             </div>
-        <button onclick="initGame()">リセットして再開</button>
+        <button id="reset-button" onclick="initGame()">リセットして再開</button>
     </div>
 
     <script>
         const BOARD_SIZE = 15; // 15x15の盤面
         const EMPTY = 0;
-        const BLACK = 1; // 先手
-        const WHITE = 2; // 後手
+        const BLACK = 1; // 先手 (⚫)
+        const WHITE = 2; // 後手 (⚪)
         const BOARD_CONTAINER = document.getElementById('board-container');
         const MESSAGE_ELEMENT = document.getElementById('message');
 
@@ -83,6 +95,8 @@
         /**
          * ゲームの状態を初期化し、盤面を描画する
          */
+        window.onload = initGame; // ページロード完了後に初期化を確実に実行
+
         function initGame() {
             // 盤面データの初期化
             board = Array(BOARD_SIZE).fill(0).map(() => Array(BOARD_SIZE).fill(EMPTY));
@@ -140,7 +154,7 @@
             // 石を置く
             board[row][col] = currentPlayer;
             
-            // 盤面の再描画
+            // 盤面の再描画 (ここでは、高速化のため、置いた石のみを再描画することも可能だが、今回はシンプルに全体を描画)
             drawBoard();
 
             // 勝敗判定
@@ -161,10 +175,10 @@
             const player = board[r][c];
             // チェックする4方向の定義: [r増加, c増加]
             const directions = [
-                [0, 1],  // 水平 (→)
-                [1, 0],  // 垂直 (↓)
-                [1, 1],  // 右下斜め (\)
-                [1, -1]  // 左下斜め (/)
+                [0, 1],  // 水平
+                [1, 0],  // 垂直
+                [1, 1],  // 右下斜め
+                [1, -1]  // 左下斜め
             ];
 
             for (const [dr, dc] of directions) {
@@ -208,4 +222,13 @@
                 const winner = (currentPlayer === BLACK) ? '黒 ⚫' : '白 ⚪';
                 MESSAGE_ELEMENT.innerHTML = `<span class="win-message">🏆 ${winner}の勝利です！おめでとう！</span>`;
             } else if (isGameOver) {
-                // 引き分け判定は省略 (五
+                 // ゲームオーバーだが勝利ではない場合（理論上はあり得ないが）
+            } else {
+                const nextPlayer = (currentPlayer === BLACK) ? '黒 ⚫' : '白 ⚪';
+                const turnClass = (currentPlayer === BLACK) ? 'turn-black' : 'turn-white';
+                MESSAGE_ELEMENT.innerHTML = `<span class="${turnClass}">${nextPlayer}のターンです</span>`;
+            }
+        }
+    </script>
+</body>
+</html>
