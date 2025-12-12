@@ -58,6 +58,9 @@
             <li>
                 <a href="./gomoku.php">⚫⚪ 五目並べ</a>
             </li>
+            <li>
+                <a href="./chinchiro.php">🎲チンチロ🎲</a>
+            </li>
         </ul>
         
     </div>
